@@ -3,7 +3,7 @@ from typing import List, Dict
 from ..actions.utils import stream_output
 from ..actions.web_scraping import scrape_urls
 from ..scraper.utils import get_image_hash  # Add this import
-
+import asyncio
 
 class BrowserManager:
     """Manages context for the researcher agent."""
@@ -29,7 +29,8 @@ class BrowserManager:
                 self.researcher.websocket,
             )
 
-        scraped_content, images = scrape_urls(urls, self.researcher.cfg)
+        loop = asyncio.get_event_loop()
+        scraped_content, images = await loop.run_in_executor(None, scrape_urls, urls, self.researcher.cfg)
         self.researcher.add_research_sources(scraped_content)
         new_images = self.select_top_images(images, k=4)  # Select top 2 images
         self.researcher.add_research_images(new_images)
