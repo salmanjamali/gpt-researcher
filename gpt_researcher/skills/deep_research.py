@@ -12,10 +12,18 @@ logger = logging.getLogger(__name__)
 # Maximum words allowed in context (25k words for safety margin)
 MAX_CONTEXT_WORDS = 25000
 
-def count_words(text: str) -> int:
-    """Count words in a text string"""
+def count_words(text) -> int:
+    """Count words in a text string or list of words. Logs when input is a list."""
+    
+    if isinstance(text, list):
+        logger.warn(f"count_words received a list instead of a string: {text}")
+        text = " ".join(map(str, text))  # Convert list elements to string and join
+    
+    if not isinstance(text, str):
+        raise TypeError(f"Expected a string or list, but got {type(text).__name__}")
+    
     return len(text.split())
-
+    
 def trim_context_to_word_limit(context_list: List[str], max_words: int = MAX_CONTEXT_WORDS) -> List[str]:
     """Trim context list to stay within word limit while preserving most recent/relevant items"""
     total_words = 0
